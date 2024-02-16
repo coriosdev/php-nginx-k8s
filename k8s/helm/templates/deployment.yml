@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    {{- with .Values.deployment.labels }} 
+    matchLabels:         
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  template:
+    metadata:
+      {{- with .Values.deployment.labels }} 
+      labels:         
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      containers:
+      - name: nginx
+        image: {{ .Values.deployment.containers.nginx.image }}:{{ .Values.deployment.containers.nginx.tag }}
+        imagePullPolicy: {{ .Values.deployment.containers.nginx.imagePullPolicy }}
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: php-files
+          mountPath: {{ .Values.deployment.containers.mountDir }}
+
+      - name: php-fpm
+        image: {{ .Values.deployment.containers.phpFpm.image }}:{{ .Values.deployment.containers.phpFpm.tag }}
+        imagePullPolicy: {{ .Values.deployment.containers.phpFpm.imagePullPolicy }}
+        ports:
+        - containerPort: 9000
+        volumeMounts:
+        - name: php-files
+          mountPath: {{ .Values.deployment.containers.mountDir }}
+       
+      volumes:
+        - name: php-files
+      {{- toYaml .Values.deployment.volume | nindent 10 }}

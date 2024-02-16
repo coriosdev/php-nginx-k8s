@@ -1,0 +1,4 @@
+/k8s/containers/nginx/default.conf
+/k8s/containers/php-fpm/xdebug.ini
+/k8s/helm/values.yaml
+/.vscode

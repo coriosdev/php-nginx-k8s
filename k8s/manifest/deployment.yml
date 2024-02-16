@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php-nginx-k8s
+  namespace: php-nginx-k8s
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: php-nginx-k8s
+  template:
+    metadata:
+      labels:
+        app: php-nginx-k8s
+    spec:
+      containers:
+
+      - name: nginx
+        image: php-nginx-k8s/nginx
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: php-files
+          mountPath: /data/src
+
+      - name: php-fpm
+        imagePullPolicy: IfNotPresent
+        image: php-nginx-k8s/php-fpm
+        ports:
+        - containerPort: 9000
+        volumeMounts:
+        - name: php-files
+          mountPath: /data/src
+
+      volumes:
+      - name: php-files
+        hostPath:
+          path: /mnt/source/src
+      - name: nginx-config
+        configMap:
+          name: nginx-config
